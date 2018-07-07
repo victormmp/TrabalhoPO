@@ -6,9 +6,9 @@ clc;
 clear all;
 
 %N?mero de m?quinas
-N=15;
+N=5;
 %N?mero de trabalhos
-M=60;
+M=10;
 %Tempo maximo (em segundos) para resolver o problema
 tempo=120;
 
