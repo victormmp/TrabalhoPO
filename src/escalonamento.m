@@ -1,10 +1,14 @@
+%% Trabalho de PO
+% Bruno Pereira, Murilo Menezes, Thiago Mattar, Victor Magalhaes
+%
+
 clc;
 clear all;
 
-%N?mero de m?quinas
+%Numero de Modulos
 N=5;
-%N?mero de trabalhos
-M=10;
+%Numero de Categorias
+M=12;
 %Tempo maximo (em segundos) para resolver o problema
 tempo=120;
 
@@ -46,7 +50,7 @@ P = min(round(P),1);
 %Cria o arquivo .lp no lp solve
 fid = fopen('model.lp','wt');
 
-fprintf(fid, 'min: T; \n\n\n');
+fprintf(fid, 'max: T; \n\n\n');
 
 fprintf(fid, '//Implementa a funcao objetivo \n');
 for j=1:M
