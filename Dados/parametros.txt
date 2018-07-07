@@ -1,0 +1,79 @@
+Seja i o iterador de categorias
+Seja j o iterador de delta módulos
+
+%%%%%%%%%%%%%%%%%% Parâmetros
+UnitsSold (ui)	
+UnitPrice (pi)	
+GrossMargin (mi)	
+GrossMarginCrossSell (mci)	
+CrossSellAVGTicket (gi)	
+ModulosAsIs (ai)	
+CategoryDraw (di) [%]
+Tickets(tm)	= 144000
+
+influence_low_j (il_j)
+influence_medium_j (im_j)
+influence_high_j (ih_j)
+
+influence_cross_sell (ics) = 0.25
+
+%%%%%%%%%%%%%%%%%% Parametros Calculados	
+asIs_low (ali) [binário]
+asIs_medium (ami) [binário]
+asIs_high (ahi) [binário]
+
+
+
+%%%%%%%%%%%%%%%%%% Variáveis do problema
+
+xi (alteracao nos modulos do produto i) [-4 <= xi <= 4 e inteiro]
+
+
+yij para j 0 a 9 (equivale de -4 a 4) [yij é binário]
+
+
+%%%%%%%%%%%%%%%%%% Funcao Objetivo
+
+sum{i=1}{N} (
+				(ui*mi*pi)
+	 			* 
+	 			(
+						1 
+						+ 
+						sum{j=1}{9} ( 
+										asIs_low(i)*influence_low(j)
+										+ asIs_medium(i)*influence_low(j)
+										+ asIs_high(i)*influence_low(j)
+									)
+				)
+			)
++
+sum{i=1}{N} (
+				(di + xi*ics)/100 * (mci * gi * tm)
+			)
+
+
+%%%%%%%%%%%%%%%%%% Restrições
+
+PARA CADA i
+	% Cada x (delta modulo) implica no respectivo yj
+	[xi == -4] -> yi1 = 1
+	[xi == -3] -> yi2 = 1
+	[xi == -2] -> yi3 = 1
+	[xi == -1] -> yi4 = 1
+	[xi == 0] -> yi5 = 1
+	[xi == 1] -> yi6 = 1
+	[xi == 2] -> yi7 = 1
+	[xi == 3] -> yi8 = 1
+	[xi == 4] -> yi9 = 1
+
+	% Um módulo por categoria ao menos
+	ai + xi >= 1
+
+	% Draw não pode ficar negativo
+	(di + xi*ics) >= 0
+
+% Não se pode ter variacao total no numero de modulos
+sum{i=1}{N} xi = 0
+
+
