@@ -40,7 +40,7 @@ Seja j o iterador de delta módulos
 		 			(
 							1 
 							+ 
-							sum{j=1}{9} ( 
+							sum{j=1}{M} ( 
 											y_ij * asIs_low(i) * influence_low(j)
 											+ 
 											y_ij * asIs_medium(i) * influence_medium(j)
@@ -51,7 +51,11 @@ Seja j o iterador de delta módulos
 				)
 	+
 	sum{i=1}{N} (
-					( d(i) + (sum{j=1}{M} (y(i,j) *(j - 5)))/2 * ics)/100 * (mcsi * gi * tm)
+					( d(i) +
+								sum{j=1}{M} (
+												y(i,j) *(j - 5)
+											) 
+											/ 2 * ics ) / 100 * (mcsi * gi * tm)
 				)
 
 

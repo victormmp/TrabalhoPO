@@ -102,9 +102,12 @@ for i = 1:M
         fobj = strcat(fobj,'+');
     end
 end
+disp(fobj)
 % Incluindo Lucro Indireto
 fobj = strcat(fobj,'+');
 
+disp(fobj)
+disp('')
 for i = 1:M
     fobj = strcat(fobj,'(',num2str(PAR_CATEGORIES.categoryDraw_di(i)),'+(');
     
