@@ -10,7 +10,7 @@ N=15;
 %N?mero de trabalhos
 M=60;
 %Tempo maximo (em segundos) para resolver o problema
-tempo=60;
+tempo=120;
 
 %Cria as matrizes
 %%N?O MUDE AQUI%%%
