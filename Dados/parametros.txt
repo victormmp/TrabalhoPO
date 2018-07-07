@@ -4,10 +4,10 @@ Seja j o iterador de delta módulos
 %%%%%%%%%%%%%%%%%% Parâmetros %%%%%%%%%%%%%%%%%%
 	% Categoria
 		UnitsSold 				(u_i)				[# units]
-		UnitPrice 				(p_i)				[R$]
+		UnitPrice 				(p_i)				[R$/unit]
 		GrossMargin 			(m_i)				[%]
 		GrossMarginCrossSell 	(mcs_i)				[%]
-		CrossSellAVGTicket 		(g_i)				[# tickets]
+		CrossSellAVGTicket 		(g_i)				[R$]
 		ModulosAsIs 			(a_i)				[# modulos]
 		CategoryDraw 			(d_i) 				[%]
 
@@ -17,9 +17,10 @@ Seja j o iterador de delta módulos
 		influence_high_j 		(ih_j)				[pontos percentuais do draw]
 
 	% Cross Sell Influence
-		influence_cross_sell 	(ics) 				= 0.5
+		PAR_crossSellInfluence_ics 	(ics) 				= 0.5
+		PAR_boundaries
 
-%%%%%%%%%%%%%%%%%% Parametros Calculados %%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% Parâmetros Calculados %%%%%%%%%%%%%%%%%%
 	asIs_low (ali) [binário]
 	asIs_medium (ami) [binário]
 	asIs_high (ahi) [binário]
@@ -42,9 +43,9 @@ Seja j o iterador de delta módulos
 							sum{j=1}{9} ( 
 											y_ij * asIs_low(i) * influence_low(j)
 											+ 
-											y_ij * asIs_medium(i) * influence_low(j)
+											y_ij * asIs_medium(i) * influence_medium(j)
 											+ 
-											y_ij * asIs_high(i) * influence_low(j)
+											y_ij * asIs_high(i) * influence_high(j)
 										)
 					)
 				)
@@ -71,7 +72,7 @@ Seja j o iterador de delta módulos
 		sum{j=1}{N} yij = 1
 
 		% Um módulo por categoria ao menos
-		ai + xi >= 1
+		ai + xi/2 >= 1
 
 		% Draw não pode ficar negativo
 		(di + xi*ics) >= 0

@@ -28,7 +28,7 @@ PAR_boundaries = [3, 6]; %<= 3 low, <=6 high
 
 %% Pre-processamento de inputs
 %   Infere número de Categorias
-M=height(PAR_CATEGORIES);
+M = height(PAR_CATEGORIES);
 
 %   Infere se a influencia de cada categoria é low, medium ou high
 for i = 1:M
@@ -47,7 +47,6 @@ for i = 1:M
         PAR_CATEGORIES.High_ahi(i) = 1;            
     end
 end
-%
 %%
 
 %% Funcao objetivo
