@@ -1,7 +1,3 @@
-% Script did?tico para o problema de escalonamento
-% criado por Vinicius Mariano Gon?alves - Pesquisa Operacional - Universidade Federal
-% de Minas Gerais
-
 clc;
 clear all;
 
