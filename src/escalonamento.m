@@ -22,8 +22,8 @@ PAR_CATEGORIES = importfileInput("../Dados/Input.csv", 2, 10);
 % problema
 % Cada módulo adicionado ou removido, há uma variação de pontos percentuais
 % no draw
-PAR_crossSellInfluence_ics = 0.25;
-PAR_boundaries = [3, 6]; %<= 3 low, <=6 high
+PAR_crossSellInfluence_ics = 0.5;
+PAR_boundaries = [3, 6]; %<= 3 low, <=6 medium, >6 high
 %% 
 
 %% Pre-processamento de inputs
@@ -50,10 +50,6 @@ end
 %%
 
 %% Funcao objetivo
-
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % %%NAO MUDE DE AQUI EM DIANTE%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
