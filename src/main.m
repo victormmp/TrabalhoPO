@@ -244,7 +244,9 @@ disp('Arquivo modelo criado. Iniciando lpsolve');
 command = ['lp_solve -s -timeout ' num2str(tempo) ' model.lp > out.txt'];
 [status,cmdout] = system(command);
 
-
+if (length(cmdout)>0)
+    disp(['ERROR (' num2str(status) '):' cmdout]);
+end
 
 
 
