@@ -31,8 +31,6 @@ PAR_CATEGORIES = importfileInput("../Dados/input.csv", 2, 10);
 
 PAR_crossSellInfluence_ics = 0.5;
 PAR_boundaries = [3, 6]; %<= 3 low, <=6 medium, >6 high
-% Numero de Categorias
-VAR = 9;
 
 % Define o tempo maximo de execucao
 tempo = 120;
@@ -43,6 +41,7 @@ PAR_ticketsPerYear_tm = 144000;
 %% Pre-processamento de inputs
 %   Infere numero de Categorias
 M = height(PAR_CATEGORIES);
+VAR = M;
 
 %   Infere se a influencia de cada categoria � low, medium ou high
 for i = 1:M
