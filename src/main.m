@@ -31,8 +31,8 @@ PAR_CATEGORIES = importfileInput("../Dados/Input.csv", 2, 10);
 
 PAR_crossSellInfluence_ics = 0.5;
 PAR_boundaries = [3, 6]; %<= 3 low, <=6 medium, >6 high
-% Numero de Modulos
-MOD = 9;
+% Numero de Categorias
+VAR = 9;
 
 % Define o tempo maximo de execucao
 tempo = 120;
@@ -88,32 +88,32 @@ for i = 1:M
         * PAR_CATEGORIES.grossMargin_mi(i)...
         * PAR_CATEGORIES.unitPrice_pi(i)),'*(',...
         '1 +');
-    for j = 1:MOD
+    for j = 1:VAR
         fobj = strcat(fobj,'y[',num2str(i),'][',num2str(j),']*',...
-            num2str(ail(i).*PAR_INFLUENCE.low_il_j(j)),'+');
-        fobj = strcat(fobj,'y[',num2str(i),'][',num2str(j),']*',...
-            num2str(aim(i).*PAR_INFLUENCE.medium_im_j(j)),'+');
-        fobj = strcat(fobj,'y[',num2str(i),'][',num2str(j),']*',...
-            num2str(aih(i).*PAR_INFLUENCE.high_ih_j(j)));
-        
-        if(j ~= MOD)
+            num2str(ail(i).*PAR_INFLUENCE.low_il_j(j) + ...
+            aim(i).*PAR_INFLUENCE.medium_im_j(j) + ...
+            aih(i).*PAR_INFLUENCE.high_ih_j(j)));        
+        if(j ~= VAR)
             fobj = strcat(fobj,'+');
         end
     end
+    
+    fobj = strcat(fobj,')');
     if (i ~= M)
         fobj = strcat(fobj,'+');
     end
 end
-Incluindo Lucro Indireto
+
+% Incluindo Lucro Indireto
 fobj = strcat(fobj,'+');
 
 for i = 1:M
     fobj = strcat(fobj,'(',num2str(PAR_CATEGORIES.categoryDraw_di(i)),'+(');
     
-    for j = 1:MOD
+    for j = 1:VAR
         fobj = strcat(fobj,'y[',num2str(i),'][',num2str(j),']*(',...
             num2str(j),'-5)*0.5');
-        if (j ~= MOD)
+        if (j ~= VAR)
             fobj = strcat(fobj,'+');
         else
             fobj = strcat(fobj,')');
@@ -121,7 +121,7 @@ for i = 1:M
     end
     
     fobj = strcat(fobj,'*',num2str(PAR_crossSellInfluence_ics),')',...
-        '*0.01*',num2str(PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)...
+        '*',num2str(0.01 * PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)...
         * PAR_CATEGORIES.crossSellAVGTicket_gi(i)...
         * PAR_ticketsPerYear_tm));
     if (i~=M)
@@ -136,9 +136,9 @@ fprintf(fid,'\n\n//Implementa Restricoes para y_ij unitarios\n');
 
 for i = 1:M
     constraint = '';
-    for j = 1:MOD
+    for j = 1:VAR
         constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']');
-        if (j ~= MOD)
+        if (j ~= VAR)
             constraint = strcat(constraint,'+');
         else
             constraint = strcat(constraint,'>=1;\n');
@@ -151,9 +151,9 @@ fprintf(fid,'\n');
 
 for i = 1:M
     constraint = '';
-    for j = 1:MOD
+    for j = 1:VAR
         constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']');
-        if (j ~= MOD)
+        if (j ~= VAR)
             constraint = strcat(constraint,'+');
         else
             constraint = strcat(constraint,'<=1;\n');
@@ -165,7 +165,7 @@ end
 fprintf(fid, '\n//Implementa Restricoes para um modulo por categoria\n');
 
 for i = 1:M
-    for j = 1:MOD
+    for j = 1:VAR
         constraint = '';
         constraint = strcat(constraint,num2str(PAR_CATEGORIES.modulosAsIs_ai(i)),'+',...
             'y[',num2str(i),'][',num2str(j),...
@@ -177,7 +177,7 @@ end
 fprintf(fid, '\nImplementa restricao de draw positivo\n');
 
 for i = 1:M
-    for j = 1:MOD
+    for j = 1:VAR
         constraint = '(';
         constraint = strcat(constraint,num2str(PAR_CATEGORIES.categoryDraw_di(i)),...
             '+y[',num2str(i),'][',num2str(j),']*(',...
@@ -191,11 +191,11 @@ fprintf(fid,'\n//Implementa restricao da variacao total no numero de modulos\n')
 
 constraint = '';
 for i = 1:M
-    for j = 1:MOD
+    for j = 1:VAR
         constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']*(',...
             num2str(j),'-5)*0.5');
         
-        if (j ~= MOD)
+        if (j ~= VAR)
             constraint = strcat(constraint,'+');
         end
     end
@@ -211,11 +211,11 @@ fprintf(fid, constraint);
 
 constraint = '\n';
 for i = 1:M
-    for j = 1:MOD
+    for j = 1:VAR
         constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']*(',...
             num2str(j),'-5)*0.5');
         
-        if (j ~= MOD)
+        if (j ~= VAR)
             constraint = strcat(constraint,'+');
         end
     end
@@ -232,7 +232,7 @@ fprintf(fid,constraint);
 fprintf(fid,'\n//Implementa as restricoes de variavel binaria\n');
 
 for i = 1:M
-    for j = 1:MOD
+    for j = 1:VAR
         fprintf(fid,['bin y[' num2str(i) '][' num2str(j) '];\n']);
     end
 end
