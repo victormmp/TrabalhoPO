@@ -100,11 +100,14 @@ for i = 1:M
             fobj = strcat(fobj,'+');
         end
     end
+    
+    fobj = strcat(fobj,')');
     if (i ~= M)
         fobj = strcat(fobj,'+');
     end
 end
-Incluindo Lucro Indireto
+
+% Incluindo Lucro Indireto
 fobj = strcat(fobj,'+');
 
 for i = 1:M
