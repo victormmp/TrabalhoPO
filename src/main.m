@@ -43,6 +43,8 @@ PAR_ticketsPerYear_tm = 144000;
 M = height(PAR_CATEGORIES);
 VAR = M;
 
+category_names = PAR_CATEGORIES.category;
+
 %   Infere se a influencia de cada categoria � low, medium ou high
 for i = 1:M
     if PAR_CATEGORIES.modulosAsIs_ai(i) <= PAR_boundaries(1)
@@ -293,3 +295,31 @@ disp(['Lucro total maximo encontrado: ' value_fobj])
 
 fobj = str2num(value_fobj);
 
+line = 5;
+final_deltas = [];
+
+for i=1:M
+    for j=1:M
+        var = Mout{line};
+        value = str2num(var(size(var,2)-1));
+        if (value==1)
+            final_deltas = [final_deltas (j-5)/2];
+        end
+        line = line + 1;
+    end
+end
+
+% RGB para azul claro
+color = [0.5843 0.8157 0.9882];
+
+figure
+hold on
+
+barh(final_deltas,'FaceColor',color)
+for i=1:M
+    text(0,i,char(category_names(i)));
+end
+xlabel('Variacao de modulos')
+ylabel('Categoria')
+
+hold off
