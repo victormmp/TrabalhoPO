@@ -9,22 +9,22 @@ close all force
 
 %%
 
-%% Parâmetros Fixos de Modelo
-% Carrega influence j, que é o modelo de quanto varia, são as variaveis
+%% Parï¿½metros Fixos de Modelo
+% Carrega influence j, que ï¿½ o modelo de quanto varia, sï¿½o as variaveis
     % influence_low_j (il_j)
     % influence_medium_j (im_j)
     % influence_high_j (ih_j)
-% do modelo. (-4 é j = 0, -3 é j = 1... até 4 e j = 9)
+% do modelo. (-4 ï¿½ j = 0, -3 ï¿½ j = 1... atï¿½ 4 e j = 9)
 PAR_INFLUENCE = importfileVariations("../Dados/Variations.csv", 2, 10);
 
-% Carrega os inputs que são os parâmetros de cada categoria
-PAR_CATEGORIES = importfileInput("../Dados/Input.csv", 2, 10);
+% Carrega os inputs que sï¿½o os parï¿½metros de cada categoria
+PAR_CATEGORIES = importfileInput("../Dados/input.csv", 2, 10);
 
-%% Parâmetros Definidos pelo Usuário
+%% Parï¿½metros Definidos pelo Usuï¿½rio
 
-% Carrega os parâmetros que são relacionados ao modelo de entendimento do
+% Carrega os parï¿½metros que sï¿½o relacionados ao modelo de entendimento do
 % problema
-% Cada módulo adicionado ou removido, há uma variação de pontos percentuais
+% Cada mï¿½dulo adicionado ou removido, hï¿½ uma variaï¿½ï¿½o de pontos percentuais
 % no draw
 
 %PAR_crossSellInfluence_ics = input('Insira Influencia de CrossSell (em %): ');
@@ -44,7 +44,7 @@ PAR_ticketsPerYear_tm = 144000;
 %   Infere numero de Categorias
 M = height(PAR_CATEGORIES);
 
-%   Infere se a influencia de cada categoria é low, medium ou high
+%   Infere se a influencia de cada categoria ï¿½ low, medium ou high
 for i = 1:M
     if PAR_CATEGORIES.modulosAsIs_ai(i) <= PAR_boundaries(1)
         PAR_CATEGORIES.Low_ali(i) = 1;
@@ -84,48 +84,63 @@ fobj = '';
 
 % Incluindo Lucro Direto
 for i = 1:M
-    fobj = strcat(fobj, num2str(PAR_CATEGORIES.unitsSold_ui(i) ...
+    %fobj = strcat(fobj, num2str(PAR_CATEGORIES.unitsSold_ui(i) ...
+    %    * PAR_CATEGORIES.grossMargin_mi(i)...
+    %    * PAR_CATEGORIES.unitPrice_pi(i)),'(',...
+    %    '1 +');
+    mult = PAR_CATEGORIES.unitsSold_ui(i) ...
         * PAR_CATEGORIES.grossMargin_mi(i)...
-        * PAR_CATEGORIES.unitPrice_pi(i)),'*(',...
-        '1 +');
+        * PAR_CATEGORIES.unitPrice_pi(i);
+    fobj = strcat(fobj,num2str(mult),' + ');
     for j = 1:VAR
-        fobj = strcat(fobj,'y[',num2str(i),'][',num2str(j),']*',...
-            num2str(ail(i).*PAR_INFLUENCE.low_il_j(j) + ...
+        num = ail(i).*PAR_INFLUENCE.low_il_j(j) + ...
             aim(i).*PAR_INFLUENCE.medium_im_j(j) + ...
-            aih(i).*PAR_INFLUENCE.high_ih_j(j)));        
+            aih(i).*PAR_INFLUENCE.high_ih_j(j) * mult;
+        fobj = strcat(fobj,num2str(num),'y[',num2str(i),'][',num2str(j),']');        
         if(j ~= VAR)
-            fobj = strcat(fobj,'+');
+            fobj = strcat(fobj,' + ');
         end
     end
     
-    fobj = strcat(fobj,')');
+    %fobj = strcat(fobj,')');
     if (i ~= M)
         fobj = strcat(fobj,'+');
     end
 end
 
 % Incluindo Lucro Indireto
-fobj = strcat(fobj,'+');
+fobj = strcat(fobj,' + ');
 
 for i = 1:M
-    fobj = strcat(fobj,'(',num2str(PAR_CATEGORIES.categoryDraw_di(i)),'+(');
+    
+    mult = 0.01 * PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)...
+        * PAR_CATEGORIES.crossSellAVGTicket_gi(i)...
+        * PAR_ticketsPerYear_tm;
+    
+    %fobj = strcat(fobj,'(',num2str(PAR_CATEGORIES.categoryDraw_di(i)),'+(');
+    
+    fobj = strcat(fobj,num2str(PAR_CATEGORIES.categoryDraw_di(i) * mult),' + ');
+    
+    mult = mult * PAR_crossSellInfluence_ics;
     
     for j = 1:VAR
-        fobj = strcat(fobj,'y[',num2str(i),'][',num2str(j),']*(',...
-            num2str(j),'-5)*0.5');
+        
+        num = (j-5)*.5;
+        
+        fobj = strcat(fobj,num2str(num*mult),'y[',num2str(i),'][',num2str(j),']');
         if (j ~= VAR)
-            fobj = strcat(fobj,'+');
-        else
-            fobj = strcat(fobj,')');
-        end
+            fobj = strcat(fobj,' + ');
+        end%lse
+        %    fobj = strcat(fobj,')');
+        %end
     end
     
-    fobj = strcat(fobj,'*',num2str(PAR_crossSellInfluence_ics),')',...
-        '*',num2str(0.01 * PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)...
-        * PAR_CATEGORIES.crossSellAVGTicket_gi(i)...
-        * PAR_ticketsPerYear_tm));
+    %fobj = strcat(fobj,'',num2str(PAR_crossSellInfluence_ics),')',...
+    %    '',num2str(0.01 * PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)...
+    %    * PAR_CATEGORIES.crossSellAVGTicket_gi(i)...
+    %    * PAR_ticketsPerYear_tm));
     if (i~=M)
-        fobj = strcat(fobj,'+');
+        fobj = strcat(fobj,' + ');
     end    
 end
 
@@ -139,7 +154,7 @@ for i = 1:M
     for j = 1:VAR
         constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']');
         if (j ~= VAR)
-            constraint = strcat(constraint,'+');
+            constraint = strcat(constraint,' + ');
         else
             constraint = strcat(constraint,'>=1;\n');
         end
@@ -154,7 +169,7 @@ for i = 1:M
     for j = 1:VAR
         constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']');
         if (j ~= VAR)
-            constraint = strcat(constraint,'+');
+            constraint = strcat(constraint,' + ');
         else
             constraint = strcat(constraint,'<=1;\n');
         end
@@ -167,22 +182,24 @@ fprintf(fid, '\n//Implementa Restricoes para um modulo por categoria\n');
 for i = 1:M
     for j = 1:VAR
         constraint = '';
-        constraint = strcat(constraint,num2str(PAR_CATEGORIES.modulosAsIs_ai(i)),'+',...
-            'y[',num2str(i),'][',num2str(j),...
-            ']*(',num2str(j),'-5)*0.5>=1;\n');
+        num = (j-5) * .5;
+        constraint = strcat(constraint,num2str(PAR_CATEGORIES.modulosAsIs_ai(i)),' + ',...
+            num2str(num),'y[',num2str(i),'][',num2str(j),...
+            ']>=1;\n');
     fprintf(fid, constraint);
     end
 end
 
-fprintf(fid, '\nImplementa restricao de draw positivo\n');
+fprintf(fid, '\n//Implementa restricao de draw positivo\n');
 
 for i = 1:M
     for j = 1:VAR
-        constraint = '(';
-        constraint = strcat(constraint,num2str(PAR_CATEGORIES.categoryDraw_di(i)),...
-            '+y[',num2str(i),'][',num2str(j),']*(',...
-            num2str(j),'-5)*0.5*',num2str(PAR_crossSellInfluence_ics),...
-            ')*0.01>=0;\n');
+        constraint = '';
+        constraint = strcat(constraint,num2str(PAR_CATEGORIES.categoryDraw_di(i)*.01), ...
+            ' + ');
+        num = (j-5)*.5 * PAR_crossSellInfluence_ics * .01;
+        constraint = strcat(constraint,num2str(num),...
+            'y[',num2str(i),'][',num2str(j),']>=0;\n');
     fprintf(fid, constraint);
     end
 end
@@ -192,16 +209,18 @@ fprintf(fid,'\n//Implementa restricao da variacao total no numero de modulos\n')
 constraint = '';
 for i = 1:M
     for j = 1:VAR
-        constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']*(',...
-            num2str(j),'-5)*0.5');
+        num = (j - 5)*.5;
+        
+        constraint = strcat(constraint,num2str(num), ...
+            'y[',num2str(i),'][',num2str(j),']');
         
         if (j ~= VAR)
-            constraint = strcat(constraint,'+');
+            constraint = strcat(constraint,' + ');
         end
     end
     
     if (i ~= M)
-        constraint = strcat(constraint,'+');
+        constraint = strcat(constraint,' + ');
     else
         constraint = strcat(constraint,'>=0;\n');
     end
@@ -212,8 +231,11 @@ fprintf(fid, constraint);
 constraint = '\n';
 for i = 1:M
     for j = 1:VAR
-        constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']*(',...
-            num2str(j),'-5)*0.5');
+        
+        num = (j-5) * .5;
+        
+        constraint = strcat(constraint,num2str(num), ...
+            'y[',num2str(i),'][',num2str(j),']');
         
         if (j ~= VAR)
             constraint = strcat(constraint,'+');
@@ -238,21 +260,37 @@ for i = 1:M
 end
 
 fclose(fid);
+
+%% Executa LP-Solve
+
 clc;
 fprintf('> Arquivo modelo criado. Iniciando lpsolve\n');
 
 command = ['lp_solve -s -timeout ' num2str(tempo) ' model.lp > out.txt'];
 
-fprintf(['$ ' command]);
+fprintf(['$ ' command '\n']);
 [status,cmdout] = system(command);
 
 if (~isempty(cmdout))
     fprintf(['\n\nLPSOLVE ERROR (' num2str(status) '): ' cmdout]);
 end
 
+%% Le o arquivo de saida
 
+Mout=[];
+fid = fopen('out.txt');
+i=1;
+while ~feof(fid)
+    Mout{i} = fgets(fid);
+    i=i+1;
+end
+n_lines = size(Mout,2);
+fclose(fid);
 
+value_fobj = extractAfter(Mout{2},"Value of objective function: ");
+value_fobj = erase(value_fobj,value_fobj(size(value_fobj,2)));
 
+disp(['Lucro total maximo encontrado: ' value_fobj])
 
-
+fobj = str2num(value_fobj);
 
