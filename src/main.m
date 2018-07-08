@@ -81,7 +81,6 @@ fobj = '';
 
 % Incluindo Lucro Direto
 for i = 1:M
-    disp(i);
     fobj = strcat(fobj, num2str(PAR_CATEGORIES.unitsSold_ui(i)),'*', ...
         num2str(PAR_CATEGORIES.grossMargin_mi(i)),'*',...
         num2str(PAR_CATEGORIES.unitPrice_pi(i)),'*(',...
@@ -110,7 +109,7 @@ for i = 1:M
     
     for j = 1:MOD
         fobj = strcat(fobj,'y[',num2str(i),'][',num2str(j),']*(',...
-            num2str(j),'-5)');
+            num2str(j),'-5)*0.5');
         if (j ~= MOD)
             fobj = strcat(fobj,'+');
         else
@@ -118,7 +117,7 @@ for i = 1:M
         end
     end
     
-    fobj = strcat(fobj,'*0.5*',num2str(PAR_crossSellInfluence_ics),')',...
+    fobj = strcat(fobj,'*',num2str(PAR_crossSellInfluence_ics),')',...
         '*0.01*',num2str(PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)),'*',...
         num2str(PAR_CATEGORIES.crossSellAVGTicket_gi(i)),'*',...
         num2str(PAR_ticketsPerYear_tm));
@@ -127,9 +126,50 @@ for i = 1:M
     end    
 end
 
-disp(fobj)
-
 fprintf(fid,fobj);
+
+% Implementa Restricoes
+fprintf(fid,'\n\n//Implementa Restricoes para y_ij unitarios\n');
+
+for i = 1:M
+    constraint = '';
+    for j = 1:MOD
+        constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']');
+        if (j ~= MOD)
+            constraint = strcat(constraint,'+');
+        else
+            constraint = strcat(constraint,'>=1\n');
+        end
+    end
+    fprintf(fid, constraint);
+end
+
+fprintf(fid,'\n');
+
+for i = 1:M
+    constraint = '';
+    for j = 1:MOD
+        constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']');
+        if (j ~= MOD)
+            constraint = strcat(constraint,'+');
+        else
+            constraint = strcat(constraint,'<=1\n');
+        end
+    end
+    fprintf(fid, constraint);
+end
+
+fprintf(fid, '\n//Implementa Restricoes para um modulo por categoria\n');
+
+for i = 1:M
+    for j = 1:MOD
+        constraint = '';
+        constraint = strcat(constraint,num2str(PAR_CATEGORIES.modulosAsIs_ai(i)),'+',...
+            'y[',num2str(i),'][',num2str(j),...
+            ']*(',num2str(j),')*0.5 >= 1\n');
+    fprintf(fid,constraint);
+    end
+end
 
 fclose(fid);
 
