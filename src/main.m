@@ -84,9 +84,9 @@ fobj = '';
 
 % Incluindo Lucro Direto
 for i = 1:M
-    fobj = strcat(fobj, num2str(PAR_CATEGORIES.unitsSold_ui(i)),'*', ...
-        num2str(PAR_CATEGORIES.grossMargin_mi(i)),'*',...
-        num2str(PAR_CATEGORIES.unitPrice_pi(i)),'*(',...
+    fobj = strcat(fobj, num2str(PAR_CATEGORIES.unitsSold_ui(i) ...
+        * PAR_CATEGORIES.grossMargin_mi(i)...
+        * PAR_CATEGORIES.unitPrice_pi(i)),'*(',...
         '1 +');
     for j = 1:MOD
         fobj = strcat(fobj,'y[',num2str(i),'][',num2str(j),']*',...
@@ -104,7 +104,7 @@ for i = 1:M
         fobj = strcat(fobj,'+');
     end
 end
-% Incluindo Lucro Indireto
+Incluindo Lucro Indireto
 fobj = strcat(fobj,'+');
 
 for i = 1:M
@@ -121,9 +121,9 @@ for i = 1:M
     end
     
     fobj = strcat(fobj,'*',num2str(PAR_crossSellInfluence_ics),')',...
-        '*0.01*',num2str(PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)),'*',...
-        num2str(PAR_CATEGORIES.crossSellAVGTicket_gi(i)),'*',...
-        num2str(PAR_ticketsPerYear_tm));
+        '*0.01*',num2str(PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)...
+        * PAR_CATEGORIES.crossSellAVGTicket_gi(i)...
+        * PAR_ticketsPerYear_tm));
     if (i~=M)
         fobj = strcat(fobj,'+');
     end    
@@ -238,14 +238,16 @@ for i = 1:M
 end
 
 fclose(fid);
-
-disp('Arquivo modelo criado. Iniciando lpsolve');
+clc;
+fprintf('> Arquivo modelo criado. Iniciando lpsolve\n');
 
 command = ['lp_solve -s -timeout ' num2str(tempo) ' model.lp > out.txt'];
+
+fprintf(['$ ' command]);
 [status,cmdout] = system(command);
 
-if (length(cmdout)>0)
-    disp(['ERROR (' num2str(status) '):' cmdout]);
+if (~isempty(cmdout))
+    fprintf(['\n\nLPSOLVE ERROR (' num2str(status) '): ' cmdout]);
 end
 
 
