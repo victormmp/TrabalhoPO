@@ -34,6 +34,9 @@ PAR_boundaries = [3, 6]; %<= 3 low, <=6 medium, >6 high
 % Numero de Modulos
 MOD = 9;
 
+% Define o tempo maximo de execucao
+tempo = 120;
+
 % Total de Tickets por Ano
 PAR_ticketsPerYear_tm = 144000;
 
@@ -117,8 +120,8 @@ for i = 1:M
         end
     end
     
-    fobj = strcat(fobj,'*',num2str(PAR_crossSellInfluence_ics),')',...
-        '*0.01*',num2str(PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)),'*',...
+    fobj = strcat(fobj,'*',num2str(PAR_crossSellInfluence_ics),'*0.01)',...
+        '*',num2str(PAR_CATEGORIES.grossMarginCrossSell_mcsi(i)),'*',...
         num2str(PAR_CATEGORIES.crossSellAVGTicket_gi(i)),'*',...
         num2str(PAR_ticketsPerYear_tm));
     if (i~=M)
@@ -126,7 +129,7 @@ for i = 1:M
     end    
 end
 
-fprintf(fid,fobj);
+fprintf(fid,[fobj ';']);
 
 % Implementa Restricoes
 fprintf(fid,'\n\n//Implementa Restricoes para y_ij unitarios\n');
@@ -138,7 +141,7 @@ for i = 1:M
         if (j ~= MOD)
             constraint = strcat(constraint,'+');
         else
-            constraint = strcat(constraint,'>=1\n');
+            constraint = strcat(constraint,'>=1;\n');
         end
     end
     fprintf(fid, constraint);
@@ -153,7 +156,7 @@ for i = 1:M
         if (j ~= MOD)
             constraint = strcat(constraint,'+');
         else
-            constraint = strcat(constraint,'<=1\n');
+            constraint = strcat(constraint,'<=1;\n');
         end
     end
     fprintf(fid, constraint);
@@ -166,14 +169,80 @@ for i = 1:M
         constraint = '';
         constraint = strcat(constraint,num2str(PAR_CATEGORIES.modulosAsIs_ai(i)),'+',...
             'y[',num2str(i),'][',num2str(j),...
-            ']*(',num2str(j),')*0.5 >= 1\n');
-    fprintf(fid,constraint);
+            ']*(',num2str(j),'-5)*0.5>=1;\n');
+    fprintf(fid, constraint);
+    end
+end
+
+fprintf(fid, '\nImplementa restricao de draw positivo\n');
+
+for i = 1:M
+    for j = 1:MOD
+        constraint = '';
+        constraint = strcat(constraint,num2str(PAR_CATEGORIES.categoryDraw_di(i)),...
+            '+y[',num2str(i),'][',num2str(j),']*(',...
+            num2str(j),'-5)*0.5*',num2str(PAR_crossSellInfluence_ics),...
+            '*0.01>=0;\n');
+    fprintf(fid, constraint);
+    end
+end
+
+fprintf(fid,'\n//Implementa restricao da variacao total no numero de modulos\n');
+
+constraint = '';
+for i = 1:M
+    for j = 1:MOD
+        constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']*(',...
+            num2str(j),'-5)*0.5');
+        
+        if (j ~= MOD)
+            constraint = strcat(constraint,'+');
+        end
+    end
+    
+    if (i ~= M)
+        constraint = strcat(constraint,'+');
+    else
+        constraint = strcat(constraint,'>=0;\n');
+    end
+end
+
+fprintf(fid, constraint);
+
+constraint = '\n';
+for i = 1:M
+    for j = 1:MOD
+        constraint = strcat(constraint,'y[',num2str(i),'][',num2str(j),']*(',...
+            num2str(j),'-5)*0.5');
+        
+        if (j ~= MOD)
+            constraint = strcat(constraint,'+');
+        end
+    end
+    
+    if (i ~= M)
+        constraint = strcat(constraint,'+');
+    else
+        constraint = strcat(constraint,'<=0;\n');
+    end
+end
+
+fprintf(fid,constraint);
+
+fprintf(fid,'\n//Implementa as restricoes de variavel binaria\n');
+
+for i = 1:M
+    for j = 1:MOD
+        fprintf(fid,['bin y[' num2str(i) '][' num2str(j) '];\n']);
     end
 end
 
 fclose(fid);
 
+disp('Arquivo modelo criado. Iniciando lpsolve');
 
+command = ['lp_solve -s -timeout ' num2str(tempo) ' model.lp > out.txt'];
+[status,cmdout] = system(command);
 
 
 
