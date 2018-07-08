@@ -50,16 +50,13 @@ Seja j o iterador de delta módulos
 					)
 				)
 	+
-	sum{i=1}{N} (
-					( d(i) +
-								sum{j=1}{M} (
-												y(i,j) *(j - 5) * 0.5
-											) * ics ) / 100 * (mcsi * gi * tm)
-				)
+	sum{i=1}{N} (( d(i) + sum{j=1}{M} ( y(i,j) *(j - 5) * 0.5 ) * ics) / 100 * (mcsi * gi * tm))
 
 
 %%%%%%%%%%%%%%%%%% Restrições %%%%%%%%%%%%%%%%%%
 	PARA CADA i
+
+		% sum{j=1}{M} (y(i,j) *(j - 5) * 0.5) equivale a x_i para x_1 contido em {-2, -1.5, ..., 1.5, 2}
 		
 		% Cada categoria, deve sempre ter somente um yj (obviamente)
 		sum{j=1}{N} yij = 1
@@ -68,7 +65,7 @@ Seja j o iterador de delta módulos
 		ai + y(i,j) *(j - 5) * 0.5 >= 1
 
 		% Draw não pode ficar negativo
-		(di + y(i,j) *(j - 5) * 0.5*ics) >= 0
+		(di + y(i,j) *(j - 5) * 0.5*ics)/100 >= 0
 
 	% Não se pode ter variacao total no numero de modulos
 	sum{i=1}{N} y(i,j) *(j - 5) * 0.5 = 0
