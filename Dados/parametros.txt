@@ -11,7 +11,6 @@ Seja j o iterador de delta módulos
 		ModulosAsIs 			(a_i)				[# modulos]
 		CategoryDraw 			(d_i) 				[%]
 		Num de Categorias		(N)					[# categorias]
-		Num de Módulos			(M)					[# modulos]
 
 	% Exposure Influence
 		influence_low_j 		(il_j)				[pontos percentuais do draw]
@@ -40,7 +39,7 @@ Seja j o iterador de delta módulos
 		 			(
 							1 
 							+ 
-							sum{j=1}{M} ( 
+							sum{j=1}{9} ( 
 											y_ij * asIs_low(i) * influence_low(j)
 											+ 
 											y_ij * asIs_medium(i) * influence_medium(j)
@@ -50,7 +49,7 @@ Seja j o iterador de delta módulos
 					)
 				)
 	+
-	sum{i=1}{N} (( d(i) + sum{j=1}{M} ( y(i,j) *(j - 5) * 0.5 ) * ics) / 100 * (mcsi * gi * tm))
+	sum{i=1}{N} (( d(i) + sum{j=1}{9} ( y(i,j) *(j - 5) * 0.5 ) * ics) / 100 * (mcsi * gi * tm))
 
 
 %%%%%%%%%%%%%%%%%% Restrições %%%%%%%%%%%%%%%%%%
